@@ -1,1 +1,1 @@
-from .main import generate_menu
+from .main import generate

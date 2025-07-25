@@ -1,18 +1,21 @@
 import base64
 
 from os import getenv
+from json import loads
 from datetime import date
 
 from google import genai
 from google.genai import types
 
+from schemas import Menus
 
-def generate_menu(
+
+def generate(
     number_of_days: int,
     number_of_people: int,
     diet: str,
     start_date: str = date.today().isoformat()
-) -> str:
+) -> Menus:
     client = genai.Client(
         api_key=getenv("GEMINI_API_KEY"),
     )
@@ -174,6 +177,10 @@ def generate_menu(
         config=generate_content_config,
     ):
         result += chunk.text
-        
-    return result
+
+    try:
+        data = loads(result)
+        return Menus.parse_obj(data)
+    except Exception as e:
+        raise
 
