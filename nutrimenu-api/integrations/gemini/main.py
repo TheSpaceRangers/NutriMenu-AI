@@ -5,10 +5,9 @@ from json import loads
 from datetime import date
 
 from google import genai
-from google.genai import types
+from google.genai import  types
 
 from schemas import Menus
-
 
 def generate(
     number_of_days: int,
