@@ -4,5 +4,5 @@
 !**/.env.example
 !**/.env.*example
 
-serviceAccountKey.json
-**/serviceAccountKey.json
+secureKey.json
+**/secureKey.json
