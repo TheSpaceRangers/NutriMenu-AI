@@ -8,7 +8,7 @@ type Params = {
 
 export async function generateMenu({ days, people, diet }: Params) {
   const response = await fetch(
-    `${API_URL}/generate_trip_v1?days=${days}&people=${people}&diet=${diet}`
+    `${API_URL}/generate_menu?days=${days}&people=${people}&diet=${diet}`
   );
 
   if (!response.ok) {
