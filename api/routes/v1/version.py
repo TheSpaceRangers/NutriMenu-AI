@@ -1,6 +1,6 @@
 from os import getenv
 
-from types import Version
+from schemas import Version
 
 from . import api_v1
 
