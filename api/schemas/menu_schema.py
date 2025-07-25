@@ -3,18 +3,18 @@ from datetime import datetime
 from pydantic import BaseModel
 from typing import List
 
-class Ingredient(BaseModel):
+class _Ingredient(BaseModel):
     name: str
     quantity: str
 
-class Meal(BaseModel):
+class _Meal(BaseModel):
     name: str
-    ingredients: List[Ingredient]
+    ingredients: List[_Ingredient]
 
 class Menu(BaseModel):
     date: datetime
-    lunch: Meal
-    diner: Meal
+    lunch: _Meal
+    diner: _Meal
     diet: str
 
 class Menus(BaseModel):
