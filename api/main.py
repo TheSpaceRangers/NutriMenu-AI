@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from route.v0 import api_v0
+from routes import api_v1
 
 load_dotenv()
 
@@ -17,4 +17,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(api_v0)
+app.include_router(api_v1)
