@@ -1,21 +1,21 @@
 services:
-  nutrimenu-ai-api:
+  nutrimenu-api:
     build: 
-      context: api
+      context: ./nutrimenu-api
       dockerfile: Dockerfile
-    container_name: nutrimenu-ai-api
+    container_name: nutrimenu-api
     restart: always
     ports:
       - "8000:80"
     command: 
-      - fastapi
-      - dev
-      - api/main.py
+      - uvicorn
+      - main:app
       - --port
       - "80"
       - --host
       - "0.0.0.0"
+      - --reload
     volumes:
-      - ./api:/nutrimenu-ai/api
+      - ./nutrimenu-api:/nutrimenu
     env_file:
-      - api/.env
+      - ./nutrimenu-api/.env
