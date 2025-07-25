@@ -7,7 +7,7 @@ from google import genai
 from google.genai import types
 
 
-def gemini_trip_v1(
+def generate_menu(
     number_of_days: int,
     number_of_people: int,
     diet: str,
