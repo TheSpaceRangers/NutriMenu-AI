@@ -1,3 +1,3 @@
-from .database import *
+from .firebase import *
 
 from .gemini import *
