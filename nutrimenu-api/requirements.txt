@@ -3,3 +3,5 @@ fastapi[all]
 
 google-genai
 google-cloud-firestore
+
+firebase-admin

@@ -6,7 +6,7 @@
 
 **/__pycache__/
 
-secureKey.json
-**/secureKey.json
+firestore.json
+**/firestore.json
 
 .idea/
