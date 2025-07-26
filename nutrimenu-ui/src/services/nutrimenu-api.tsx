@@ -1,21 +1,17 @@
 import { auth } from './firebase'
 
+import type { Params } from '../schemas/generate_menu'
+
 const API_URL = import.meta.env.VITE_API_URL;
 
-type Params = {
-    days: number;
-    people: number;
-    diet: string;
-}
-
-export async function generateMenu({ days, people, diet }: Params) {
+export async function generateMenu({ days, people, diet, start_date }: Params) {
     const user = auth.currentUser;
     if (!user)
         throw new Error("User not authenticated");
     const token = await user.getIdToken();
 
-  const response = await fetch(
-    `${API_URL}/generate_menu?days=${days}&people=${people}&diet=${diet}`,
+    const response = await fetch(
+      `${API_URL}/generate_menu?days=${days}&people=${people}&diet=${encodeURIComponent(diet)}&start_date=${start_date}`,
       {
         method: 'GET',
         headers: {
@@ -23,11 +19,11 @@ export async function generateMenu({ days, people, diet }: Params) {
             'Authorization': `Bearer ${token}`
         }
       }
-  );
+    );
 
-  if (!response.ok) {
+    if (!response.ok) {
     throw new Error("API error");
-  }
+    }
 
-  return response.json();
+    return response.json();
 }

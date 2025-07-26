@@ -1,62 +1,59 @@
-import { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
-import FormInput from './FormInput'
-import FormSelect from './FormSelect'
-import FormButton from './FormButton'
+import { ZodError } from "zod"
 
-import { generateMenu } from '../services/api'
+import { FormSelect, FormInput, FormButton } from './Forms'
 
-type Ingredient = {
-  name: string;
-  quantity: string;
-};
+import  { paramsSchema } from '../schemas/generate_menu'
+import type { Params } from '../schemas/generate_menu'
 
-type Menu = {
-  date: string;
-  lunch: {
-    name: string;
-    ingredients: Ingredient[];
-  };
-  diner: {
-    name: string;
-    ingredients: Ingredient[];
-  };
-  diet: string;
-};
+import { generateMenu } from '../services/nutrimenu-api.tsx'
 
-type Data = {
-  menus: Menu[];
-};
+export default function GenerateMenu() {
+    const [form, setForm] = useState({
+        days: 1,
+        people: 2,
+        diet: "Tous les régimes",
+        start_date: new Date().toISOString().slice(0, 10),
+    });
 
-export default function MenuForm() {
-    const [days, setDays] = useState(1)
-    const [people, setPeople] = useState(2)
-    const [diet, setDiet] = useState('Aucune restriction')
     const [loading, setLoading] = useState(false)
-    const [data, setData] = useState<Data | null>(null)
     const [error, setError] = useState<string | null>(null);
-    
-    const handleDaysChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setDays(Number(e.target.value))
-    }
-    
-    const handlePeopleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPeople(Number(e.target.value))
-    }
 
-    const handleDietChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setDiet(e.target.value)
-    }
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value, type } = e.target;
+        setForm((prev) => ({
+            ...prev,
+            [name]: type === "number" ? Number(value) : value,
+        }));
+    };
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setError(null)
         setLoading(true);
+
+        let params: Params;
+
         try {
-            const response = await generateMenu({ days, people, diet });
-            setData(response);
-        } catch (error: any) {
-            setError("Une erreur est survenue lors de la génération du menu. Veuillez réessayer.");
+            params = paramsSchema.parse(form);
+        } catch (e: unknown) {
+            if (e instanceof ZodError)
+                setError(e.issues.map(err => err.message).join("\n"));
+            else
+                setError("Erreur de validation du formulaire");
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const response = await generateMenu(params);
+            console.log(response);
+        } catch (e: unknown) {
+            if (e instanceof Error)
+                setError("Une erreur est survenue lors de la génération du menu. Veuillez réessayer => " + e.message);
+            else
+                setError("Une erreur inattendue est survenue lors de la génération du menu.");
         } finally {
             setLoading(false);
         }
@@ -65,7 +62,7 @@ export default function MenuForm() {
     return (
         <section className="bg-white rounded-xl p-10 shadow mb-12">
             <form onSubmit={handleSubmit}>
-                <fieldset className="grid grid-cols-3 gap-3 border-none mb-8 p-0">
+                <fieldset className="grid grid-cols-2 gap-2 border-none mb-8 p-0">
                     <FormSelect
                         id='days'
                         name='days'
@@ -76,8 +73,8 @@ export default function MenuForm() {
                             { value: 3, label: '3 jours' },
                             { value: 7, label: '7 jours' },
                         ]}
-                        value={days}
-                        onChange={handleDaysChange}
+                        value={form.days}
+                        onChange={handleChange}
                     />
 
                     <FormInput 
@@ -85,8 +82,8 @@ export default function MenuForm() {
                         name='people'
                         label='Nombre de personnes'
                         type='number'
-                        value={people}
-                        onChange={handlePeopleChange}
+                        value={form.people}
+                        onChange={handleChange}
                         placeholder="Nombre de personnes"
                         required
                         min='1'
@@ -98,14 +95,25 @@ export default function MenuForm() {
                         name='diet'
                         label='Régime alimentaire'
                         options={[
-                            { value: 'Aucune restriction', label: 'Aucune restriction' },
+                            { value: 'Tous les régimes', label: 'Tous les régimes' },
                             { value: 'Végétarien', label: 'Végétarien' },
                             { value: 'Végétalien', label: 'Végétalien' },
                             { value: 'Sans gluten', label: 'Sans gluten' },
                             { value: 'Cétogène', label: 'Cétogène' },
                         ]}
-                        value={diet}
-                        onChange={handleDietChange}
+                        value={form.diet}
+                        onChange={handleChange}
+                    />
+
+                    <FormInput
+                        id='start_date'
+                        name='start_date'
+                        label='Date de début'
+                        type='date'
+                        value={form.start_date}
+                        onChange={handleChange}
+                        placeholder="Date de début"
+                        required
                     />
                 </fieldset>
 

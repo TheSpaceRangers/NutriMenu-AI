@@ -5,7 +5,7 @@ import type { User } from 'firebase/auth'
 
 import Header from './components/header/Header'
 import Hero from './components/Hero'
-import MenuForm from './components/MenuForm'
+import GenerateMenu from './components/GenerateMenu.tsx'
 
 import { auth } from "./services/firebase.tsx";
 
@@ -30,7 +30,7 @@ function App() {
 
       <main className="max-w-5xl mx-auto p-8">
         <Hero />
-        <MenuForm />
+        <GenerateMenu />
       </main>
     </div>
   )
