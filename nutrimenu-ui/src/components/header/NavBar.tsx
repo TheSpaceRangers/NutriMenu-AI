@@ -1,11 +1,14 @@
-import { useState } from 'react'
+type Props = {
+  active: number;
+  setActive: (index: number) => void;
+};
 
-export default function NavBar() {
-  const [active, setActive] = useState(0)
+export default function NavBar({ active, setActive }: Props) {
   const navs = [
     { label: 'Génération', icon: '⚡' },
     { label: 'Historique', icon: '📋' },
   ]
+
   return (
     <nav className="flex gap-4">
       {navs.map((nav, i) => (

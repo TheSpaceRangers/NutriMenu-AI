@@ -99,7 +99,7 @@ export function FormInput({
 
 // --------- Button ---------
 type ButtonProps = {
-    children: React.ReactNode
+    children?: React.ReactNode
     icon?: string
     type?: "button" | "submit" | "reset"
     onClick?: () => void
@@ -107,7 +107,10 @@ type ButtonProps = {
     loading_msg?: string
     loading_icon?: string
     className?: string
+    center?: boolean
     disabled?: boolean
+    ariaLabel?: string
+    size?: "sm" | "md" | "lg"
 };
 
 export function FormButton({
@@ -119,23 +122,34 @@ export function FormButton({
     loading_msg,
     loading_icon,
     className = "",
+    center = true,
     disabled = false,
+    ariaLabel,
+    size = "md",
 }: ButtonProps) {
+    const sizes = {
+        sm: "px-3 py-1 text-sm",
+        md: "px-6 py-3 text-base",
+        lg: "px-8 py-4 text-lg",
+    };
+
     return (
         <button
             type={type}
             onClick={onClick}
             disabled={disabled || loading}
+            aria-label={ariaLabel}
             className={`
-                mt-8 mx-auto block min-w-[200px] px-6 py-3 rounded-md bg-gray-900 text-white text-base font-medium flex items-center justify-center gap-2
-                transition
-                ${loading ? "bg-indigo-500" : "hover:bg-gray-800"}
+                rounded-md border flex items-center justify-center gap-2 font-medium
+                ${sizes[size]}
+                ${center ? "mx-auto block" : ""}
+                ${loading ? "bg-indigo-500 text-white" : "bg-white hover:bg-gray-100"}
                 ${disabled ? "opacity-60 cursor-not-allowed" : ""}
                 ${className}
-            `}
-        >
-            <span aria-hidden="true">{loading ? loading_icon : icon}</span>
+            `}>
+            {icon && <span aria-hidden="true">{loading ? loading_icon : icon}</span>}
             {loading ? loading_msg : children}
         </button>
     );
 }
+

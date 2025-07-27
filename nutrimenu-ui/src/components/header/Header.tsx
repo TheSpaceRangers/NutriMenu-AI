@@ -1,11 +1,16 @@
 import Logo from './Logo'
 import NavBar from './NavBar'
 
-export default function Header() {
+type Props = {
+    active: number;
+    setActive: (index: number) => void;
+};
+
+export default function Header({ active, setActive }: Props) {
   return (
     <header className="w-full bg-white shadow flex items-center justify-between px-8 py-4">
       <Logo />
-      <NavBar />
+      <NavBar active={active} setActive={setActive}/>
     </header>
   )
 }

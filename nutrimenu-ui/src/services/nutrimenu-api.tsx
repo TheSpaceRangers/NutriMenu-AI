@@ -21,9 +21,30 @@ export async function generateMenu({ days, people, diet, start_date }: Params) {
       }
     );
 
-    if (!response.ok) {
-    throw new Error("API error");
-    }
-
+    if (!response.ok)
+        throw new Error("API error")
     return response.json();
 }
+
+export async function fetchMenus(month: string) {
+    const user = auth.currentUser;
+    if (!user)
+        throw new Error("User not authenticated");
+    const token = await user.getIdToken();
+
+    const response = await fetch(
+        `${API_URL}/menus?month=${encodeURIComponent(month)}`,
+        {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        }
+    );
+
+    if (!response.ok)
+        throw new Error("Erreur lors de la récupération des menus");
+    return response.json();
+}
+
