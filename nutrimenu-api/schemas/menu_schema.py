@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from pydantic import BaseModel
-from typing import List
+from pydantic import BaseModel, RootModel
+from typing import List, Optional
 
 class _Ingredient(BaseModel):
     name: str
@@ -14,8 +14,16 @@ class _Meal(BaseModel):
 class Menu(BaseModel):
     date: datetime
     lunch: _Meal
-    diner: _Meal
+    dinner: _Meal
     diet: str
 
 class Menus(BaseModel):
     menus: List[Menu]
+
+class _MenuSlim(BaseModel):
+    date: datetime
+    lunch: Optional[str]
+    dinner: Optional[str]
+
+class MenuSlimByMonth(RootModel[dict[str, list[_MenuSlim]]]):
+   pass
