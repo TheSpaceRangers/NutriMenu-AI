@@ -1,6 +1,7 @@
 import { auth } from './firebase'
 
 import type { Params } from '../schemas/generate_menu'
+import type { MenusSlimByMonth } from "../types/menu.tsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -26,14 +27,15 @@ export async function generateMenu({ days, people, diet, start_date }: Params) {
     return response.json();
 }
 
-export async function fetchMenus(month: string) {
+export async function fetchMenus(months: string[]): Promise<MenusSlimByMonth> {
     const user = auth.currentUser;
     if (!user)
         throw new Error("User not authenticated");
     const token = await user.getIdToken();
 
+    const url = `${API_URL}/menus?month=${encodeURIComponent(months.map(m => `month=${encodeURIComponent(m)}`).join('&'))}`;
     const response = await fetch(
-        `${API_URL}/menus?month=${encodeURIComponent(month)}`,
+        url,
         {
             method: 'GET',
             headers: {
@@ -45,6 +47,5 @@ export async function fetchMenus(month: string) {
 
     if (!response.ok)
         throw new Error("Erreur lors de la récupération des menus");
-    return response.json();
+    return await response.json() as MenusSlimByMonth;
 }
-

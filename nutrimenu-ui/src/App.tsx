@@ -29,6 +29,7 @@ function App() {
         const unsubscribe = onAuthStateChanged(auth, (u: User | null) => {
             if (u) {
                 console.log("User signed in: ", u.uid)
+                console.log("User signed in: ", u.getIdToken())
             }
         });
 

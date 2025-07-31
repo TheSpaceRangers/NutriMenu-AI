@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useState} from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { addMonths, format, subMonths } from "date-fns";
 
@@ -6,39 +6,40 @@ import { fetchMenus } from "../services/nutrimenu-api.tsx";
 
 import Calendar from "../components/Calendar.tsx";
 
-import type { Menu } from "../types/menu.ts";
+import type { MenusSlimByMonth } from "../types/menu.tsx";
 
 export default function HistoryPage() {
-    const [menusByMonth, setMenusByMonth] = useState<Record<string, Menu[]>>({});
-    const [loadingMonth, setLoadingMonth] = useState<string | null>(null);
+    const [menusByMonth, setMenusByMonth] = useState<MenusSlimByMonth>({});
+    const [loading, setLoading] = useState(false);
 
-    const loadMenus = useCallback(async (month: string) => {
-        if (menusByMonth[month] || loadingMonth === month)
-            return;
-        setLoadingMonth(month);
-
+    const loadMenus = useCallback(async (months: string[]) => {
+        setLoading(true);
         try {
-            const response = await fetchMenus(month);
-            setMenusByMonth(prev => ({
-                ...prev,
-                [month]: response.menus,
-            }));
+            const response = await fetchMenus(months);
+            setMenusByMonth(response);
         } finally {
-            setLoadingMonth(null);
+            setLoading(false);
         }
-    }, [menusByMonth, loadingMonth]);
+    }, []);
 
     useEffect(() => {
-        Promise.all([
-            loadMenus(format(subMonths(new Date(), 1), "yyyy-MM")),
-            loadMenus(format(new Date(), "yyyy-MM")),
-            loadMenus(format(addMonths(new Date(), 1), "yyyy-MM")),
-        ]);
+        const months = [
+            format(subMonths(new Date(), 1), "yyyy-MM"),
+            format(new Date(), "yyyy-MM"),
+            format(addMonths(new Date(), 1), "yyyy-MM"),
+        ];
+        void loadMenus(months);
     }, [loadMenus]);
+
+    const handleMonthChange = (month: string) => {
+        void loadMenus([month, format(addMonths(new Date(month + "-01"), 1), "yyyy-MM")]);
+    };
 
     return (
         <Calendar
-            menus={menusByMonth[format(new Date(), "yyyy-MM")] ?? []}
+            menus={menusByMonth}
+            currentMonth={format(new Date(), "yyyy-MM")}
+            onMonthChange={handleMonthChange}
         />
     )
 }

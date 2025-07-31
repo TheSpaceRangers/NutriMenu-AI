@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import { useState, useMemo } from "react";
 
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameDay } from "date-fns";
 
 import { FormButton } from "./Forms.tsx";
 
-import type { Menu } from "../types/menu.ts";
+import type { MenusSlimByMonth } from "../types/menu.tsx";
 
 const _capitalizeFirstLetter = (str: string) =>
     str.charAt(0).toUpperCase() + str.slice(1);
@@ -12,14 +12,27 @@ const _capitalizeFirstLetter = (str: string) =>
 type _CalendarHeaderProps = {
     currentMonth: Date;
     setCurrentMonth: (date: Date) => void;
+    onMonthChange: (month: string) => void;
 };
 
-function _CalendarHeader({ currentMonth, setCurrentMonth }: _CalendarHeaderProps) {
+function _CalendarHeader({ currentMonth, setCurrentMonth, onMonthChange }: _CalendarHeaderProps) {
+    const handlePrev = () => {
+        const newMonth = subMonths(currentMonth, 1);
+        setCurrentMonth(newMonth);
+        onMonthChange(format(newMonth, "yyyy-MM"));
+    }
+
+    const handleNext = () => {
+        const newMonth = addMonths(currentMonth, 1);
+        setCurrentMonth(newMonth);
+        onMonthChange(format(newMonth, "yyyy-MM"));
+    };
+
     return (
         <div className="flex items-center justify-between mb-4">
             <FormButton
                 type="button"
-                onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
+                onClick={handlePrev}
                 center={false}
                 size="sm"
                 aria-label="Mois précédent"
@@ -30,7 +43,7 @@ function _CalendarHeader({ currentMonth, setCurrentMonth }: _CalendarHeaderProps
             </span>
             <FormButton
                 type="button"
-                onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+                onClick={handleNext}
                 center={false}
                 size="sm"
                 aria-label="Mois suivant"
@@ -40,11 +53,7 @@ function _CalendarHeader({ currentMonth, setCurrentMonth }: _CalendarHeaderProps
     );
 }
 
-type _CalendarDaysHeaderProps = {
-    currentMonth: Date;
-};
-
-function _CalendarDaysHeader({ currentMonth }: _CalendarDaysHeaderProps) {
+function _CalendarDaysHeader({ currentMonth }: { currentMonth: Date }) {
     const startDate = startOfWeek(currentMonth, { weekStartsOn: 1 });
     return (
         <div className="grid grid-cols-7">
@@ -60,17 +69,13 @@ function _CalendarDaysHeader({ currentMonth }: _CalendarDaysHeaderProps) {
     );
 }
 
-type _MenuCell = {
-    lunch?: string;
-    dinner?: string;
-};
-
-type _CalendarCellsProps = {
+function _CalendarCells({
+    currentMonth,
+    menusByDate
+}: {
     currentMonth: Date;
-    menusByDate: Record<string, _MenuCell>;
-};
-
-function _CalendarCells({ currentMonth, menusByDate }: _CalendarCellsProps) {
+    menusByDate: Record<string, { lunch?: string; dinner?: string }>;
+}) {
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(monthStart);
     const startDate = startOfWeek(monthStart, { weekStartsOn: 1 });
@@ -125,26 +130,43 @@ function _CalendarCells({ currentMonth, menusByDate }: _CalendarCellsProps) {
     return <div>{rows}</div>;
 }
 
-type _Props = {
-    menus: Menu[];
-};
+export default function Calendar({
+    menus,
+    currentMonth: currentMonthStr,
+    onMonthChange
+}: {
+    menus: MenusSlimByMonth;
+    currentMonth: string;
+    onMonthChange: (month: string) => void;
+}) {
+    const [monthState, setMonthState] = useState(
+        new Date(currentMonthStr + '-01')
+    );
 
-export default function Calendar({ menus }: _Props) {
-    const [currentMonth, setCurrentMonth] = useState(new Date());
-
-    const menusByDate = React.useMemo(() => {
-        const map: Record<string, Menu> = {};
-        for (const menu of menus) {
-            map[menu.date] = menu;
+    const menusByDate = useMemo(() => {
+        const map: Record<string, { lunch: string | undefined; dinner: string | undefined }> = {};
+        for (const monthKey of Object.keys(menus)) {
+            for (const menu of menus[monthKey]) {
+                map[
+                    format(new Date(menu.date), "yyyy-MM-dd")
+                ] = {
+                    lunch: menu.lunch,
+                    dinner: menu.dinner
+                }
+            }
         }
         return map;
     }, [menus]);
 
     return (
         <section className="bg-white rounded-xl shadow p-6">
-            <_CalendarHeader currentMonth={currentMonth} setCurrentMonth={setCurrentMonth} />
-            <_CalendarDaysHeader currentMonth={currentMonth} />
-            <_CalendarCells currentMonth={currentMonth} menusByDate={menusByDate} />
+            <_CalendarHeader
+                currentMonth={monthState}
+                setCurrentMonth={setMonthState}
+                onMonthChange={onMonthChange}
+            />
+            <_CalendarDaysHeader currentMonth={monthState} />
+            <_CalendarCells currentMonth={monthState} menusByDate={menusByDate} />
         </section>
     );
 }
