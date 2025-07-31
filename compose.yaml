@@ -19,3 +19,19 @@ services:
       - ./nutrimenu-api:/nutrimenu
     env_file:
       - ./nutrimenu-api/.env
+    networks:
+      - nutrimenu
+  nutrimenu-ui:
+    build:
+      context: ./nutrimenu-ui
+      dockerfile: Dockerfile
+    container_name: nutrimenu-ui
+    restart: always
+    depends_on:
+      - nutrimenu-api
+    ports:
+      - "5173:80"
+    networks:
+      - nutrimenu
+networks:
+  nutrimenu:
