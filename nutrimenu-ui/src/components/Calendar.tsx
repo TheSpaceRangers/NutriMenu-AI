@@ -133,11 +133,13 @@ function _CalendarCells({
 export default function Calendar({
     menus,
     currentMonth: currentMonthStr,
-    onMonthChange
+    onMonthChange,
+    loading = false,
 }: {
     menus: MenusSlimByMonth;
     currentMonth: string;
     onMonthChange: (month: string) => void;
+    loading?: boolean;
 }) {
     const [monthState, setMonthState] = useState(
         new Date(currentMonthStr + '-01')
@@ -159,7 +161,12 @@ export default function Calendar({
     }, [menus]);
 
     return (
-        <section className="bg-white rounded-xl shadow p-6">
+        <section className="relative bg-white rounded-xl shadow p-6">
+            {loading && (
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-10">
+                    <div className="bg-white p-4 rounded shadow">Chargement...</div>
+                </div>
+            )}
             <_CalendarHeader
                 currentMonth={monthState}
                 setCurrentMonth={setMonthState}

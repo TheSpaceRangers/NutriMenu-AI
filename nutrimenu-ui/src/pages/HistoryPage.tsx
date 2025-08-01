@@ -40,6 +40,7 @@ export default function HistoryPage() {
             menus={menusByMonth}
             currentMonth={format(new Date(), "yyyy-MM")}
             onMonthChange={handleMonthChange}
+            loading={loading}
         />
     )
 }
